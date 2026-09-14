@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { generateSummary, getOllamaBaseUrl } from './ollama';
+import { streamSummary, getOllamaBaseUrl } from './ollama';
 import { GENERATION_PARAMS } from './prompts';
+import { ndjsonResponse, interruptedNdjsonResponse } from '../test/mock-ollama-stream';
 
 describe('getOllamaBaseUrl', () => {
   it('derives the base URL from window.location.hostname, never hardcoded', () => {
@@ -8,7 +9,7 @@ describe('getOllamaBaseUrl', () => {
   });
 });
 
-describe('generateSummary', () => {
+describe('streamSummary', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
   });
@@ -17,14 +18,11 @@ describe('generateSummary', () => {
     vi.unstubAllGlobals();
   });
 
-  it('calls Ollama /api/generate with the dynamic hostname URL and correct params', async () => {
+  it('calls Ollama /api/generate with stream: true and the correct params', async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => ({ response: 'A short summary.\n\n— point one\n— point two' }),
-    });
+    mockFetch.mockResolvedValue(ndjsonResponse(['A short summary.']));
 
-    const result = await generateSummary('some prompt', GENERATION_PARAMS);
+    await streamSummary('some prompt', GENERATION_PARAMS, () => {});
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const [url, options] = mockFetch.mock.calls[0];
@@ -32,30 +30,45 @@ describe('generateSummary', () => {
 
     const body = JSON.parse(options.body);
     expect(body.model).toBe('mistral:7b');
-    expect(body.stream).toBe(false);
+    expect(body.stream).toBe(true);
     expect(body.prompt).toBe('some prompt');
     expect(body.options).toEqual({
       temperature: 0.2,
       num_ctx: 8192,
       num_predict: 1100,
     });
-    // No `stop` token — removing it fixed premature truncation on Newsletter Digest (SPEC.md §4).
-    expect(body.options.stop).toBeUndefined();
+  });
 
-    expect(result).toBe('A short summary.\n\n— point one\n— point two');
+  it('invokes onToken incrementally as each token arrives, not just once at the end', async () => {
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValue(
+      ndjsonResponse(['Intro.', '\n\n', '— point one', '\n', '— point two'])
+    );
+
+    const received: string[] = [];
+    await streamSummary('prompt', GENERATION_PARAMS, (token) => received.push(token));
+
+    expect(received).toEqual(['Intro.', '\n\n', '— point one', '\n', '— point two']);
   });
 
   it('throws when the response is not ok, so callers can surface the unreachable error', async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
-    mockFetch.mockResolvedValue({ ok: false, status: 500, json: async () => ({}) });
+    mockFetch.mockResolvedValue({ ok: false, status: 500, body: null });
 
-    await expect(generateSummary('prompt', GENERATION_PARAMS)).rejects.toThrow();
+    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
   });
 
   it('propagates a network failure (e.g. Ollama unreachable) as a rejection', async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
 
-    await expect(generateSummary('prompt', GENERATION_PARAMS)).rejects.toThrow();
+    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
+  });
+
+  it('throws if the stream is interrupted mid-generation, before a final done:true line', async () => {
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValue(interruptedNdjsonResponse(['Intro.', ' more text']));
+
+    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
   });
 });

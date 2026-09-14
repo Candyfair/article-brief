@@ -1,31 +1,15 @@
 import { useState } from 'react';
 import { PasteArea } from './components/PasteArea';
 import { SummaryResult } from './components/SummaryResult';
-import { generateSummary } from './lib/ollama';
-import { buildEnglishPrompt, GENERATION_PARAMS } from './lib/prompts';
-
-const UNREACHABLE_ERROR = 'Impossible de joindre le modèle local.';
+import { useStreamingSummary } from './hooks/useStreamingSummary';
+import { buildEnglishPrompt } from './lib/prompts';
 
 function App() {
   const [articleText, setArticleText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { intro, introComplete, bullets, isLoading, error, start } = useStreamingSummary();
 
-  async function handleSubmit() {
-    setIsLoading(true);
-    setError(null);
-    setSummary(null);
-
-    try {
-      const prompt = buildEnglishPrompt(articleText);
-      const result = await generateSummary(prompt, GENERATION_PARAMS);
-      setSummary(result);
-    } catch {
-      setError(UNREACHABLE_ERROR);
-    } finally {
-      setIsLoading(false);
-    }
+  function handleSubmit() {
+    void start(buildEnglishPrompt(articleText));
   }
 
   return (
@@ -37,7 +21,13 @@ function App() {
         onSubmit={handleSubmit}
         isLoading={isLoading}
       />
-      <SummaryResult summary={summary} error={error} />
+      <SummaryResult
+        intro={intro}
+        introComplete={introComplete}
+        bullets={bullets}
+        isLoading={isLoading}
+        error={error}
+      />
     </main>
   );
 }
