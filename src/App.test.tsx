@@ -84,6 +84,47 @@ describe('App core loop', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('detects English text, shows the EN indicator, and sends the English prompt', async () => {
+    const user = userEvent.setup();
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValue(ndjsonResponse(['Intro sentence.']));
+
+    render(<App />);
+
+    await user.type(
+      screen.getByRole('textbox'),
+      'The president announced new measures today to address economic concerns.'
+    );
+    await user.click(screen.getByRole('button', { name: 'Résumer' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Detected: EN')).toBeInTheDocument();
+    });
+    const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+    expect(requestBody.prompt).toContain('Write only in English.');
+  });
+
+  it('detects French text, shows the FR indicator, and sends the French prompt', async () => {
+    const user = userEvent.setup();
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValue(ndjsonResponse(['Phrase d’intro.']));
+
+    render(<App />);
+
+    await user.type(
+      screen.getByRole('textbox'),
+      'Le président de la République a annoncé que les mesures pour la crise ' +
+        'sont prêtes et que le gouvernement va agir dans les prochains jours.'
+    );
+    await user.click(screen.getByRole('button', { name: 'Résumer' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Detected: FR')).toBeInTheDocument();
+    });
+    const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
+    expect(requestBody.prompt).toContain('Rédige uniquement en français.');
+  });
+
   it('disables the textarea and Résumer button while streaming is in progress', async () => {
     const user = userEvent.setup();
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
