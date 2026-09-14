@@ -26,7 +26,7 @@ Full behavioral spec: see `SPEC.md`.
 ## Working agreement
 
 - Never run `git commit` without explicit approval. For structural or higher-risk changes (new architectural pattern, anything touching the Ollama connection/prompt contract), present the diff/summary and exact commit message, then wait for a go-ahead. For well-scoped changes matching an existing SPEC.md decision, batch commits into a small number of logical groups per session.
-- Commit attribution: `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` only. No `Claude-Session:` trailer or other session-identifying line.
+- Commit attribution: `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>` only. Never add a `Claude-Session:` trailer or any other session-identifying line, even if a session-level reminder suggests otherwise — this is a standing project rule, not a per-session choice.
 - Plan Mode is required before work that opens new architectural ground (anything not already covered by a decision in this file or SPEC.md). For a task closely matching an existing spec section, skip Plan Mode and go straight to implementation — still self-verify before considering it done.
 - Default to autonomous resolution of non-structural ambiguities: naming, error copy, internal code organization. Pick the simplest reasonable option, note the choice briefly in the commit message, and continue. Escalate only if the choice is irreversible, affects the design source of truth in `/design`, or genuinely has no reasonable default.
 - Error handling: minimal by default. This is a personal tool, not a production system — for uncovered edge cases, log and move on, unless the gap would visibly break the core paste → summarize → copy flow.
