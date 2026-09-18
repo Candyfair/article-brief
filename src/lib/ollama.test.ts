@@ -1,7 +1,12 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { streamSummary, getOllamaBaseUrl } from './ollama';
-import { GENERATION_PARAMS } from './prompts';
+import { buildGenerationParams } from './prompts';
 import { ndjsonResponse, interruptedNdjsonResponse } from '../test/mock-ollama-stream';
+
+// streamSummary doesn't care how num_predict was computed — that's prompts.test.ts's
+// job (computeTargetPoints/computeNumPredict). Here it's just a stand-in value to
+// confirm params flow through to the request body untouched.
+const TEST_PARAMS = buildGenerationParams(600);
 
 describe('getOllamaBaseUrl', () => {
   it('derives the base URL from window.location.hostname, never hardcoded', () => {
@@ -22,7 +27,7 @@ describe('streamSummary', () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockResolvedValue(ndjsonResponse(['A short summary.']));
 
-    await streamSummary('some prompt', GENERATION_PARAMS, () => {});
+    await streamSummary('some prompt', TEST_PARAMS, () => {});
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const [url, options] = mockFetch.mock.calls[0];
@@ -35,7 +40,7 @@ describe('streamSummary', () => {
     expect(body.options).toEqual({
       temperature: 0.2,
       num_ctx: 8192,
-      num_predict: 1100,
+      num_predict: 600,
     });
   });
 
@@ -46,7 +51,7 @@ describe('streamSummary', () => {
     );
 
     const received: string[] = [];
-    await streamSummary('prompt', GENERATION_PARAMS, (token) => received.push(token));
+    await streamSummary('prompt', TEST_PARAMS, (token) => received.push(token));
 
     expect(received).toEqual(['Intro.', '\n\n', '— point one', '\n', '— point two']);
   });
@@ -55,20 +60,20 @@ describe('streamSummary', () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockResolvedValue({ ok: false, status: 500, body: null });
 
-    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
+    await expect(streamSummary('prompt', TEST_PARAMS, () => {})).rejects.toThrow();
   });
 
   it('propagates a network failure (e.g. Ollama unreachable) as a rejection', async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
 
-    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
+    await expect(streamSummary('prompt', TEST_PARAMS, () => {})).rejects.toThrow();
   });
 
   it('throws if the stream is interrupted mid-generation, before a final done:true line', async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockResolvedValue(interruptedNdjsonResponse(['Intro.', ' more text']));
 
-    await expect(streamSummary('prompt', GENERATION_PARAMS, () => {})).rejects.toThrow();
+    await expect(streamSummary('prompt', TEST_PARAMS, () => {})).rejects.toThrow();
   });
 });

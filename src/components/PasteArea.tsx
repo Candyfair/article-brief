@@ -1,13 +1,10 @@
+import { wordCount } from '../lib/word-count';
+
 interface PasteAreaProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   isLoading: boolean;
-}
-
-function wordCount(text: string): number {
-  const trimmed = text.trim();
-  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
 }
 
 export function PasteArea({ value, onChange, onSubmit, isLoading }: PasteAreaProps) {

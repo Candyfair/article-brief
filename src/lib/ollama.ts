@@ -12,6 +12,8 @@ export function getOllamaBaseUrl(): string {
 interface OllamaStreamChunk {
   response?: string;
   done?: boolean;
+  prompt_eval_count?: number;
+  eval_count?: number;
 }
 
 // Streams a summary from Ollama's /api/generate endpoint (stream: true), invoking
@@ -51,7 +53,14 @@ export async function streamSummary(
     if (!line.trim()) return;
     const chunk = JSON.parse(line) as OllamaStreamChunk;
     if (chunk.response) onToken(chunk.response);
-    if (chunk.done) sawDone = true;
+    if (chunk.done) {
+      sawDone = true;
+      // Dev diagnostic for tuning num_predict against real articles (SPEC.md §9) —
+      // no logging library needed for a personal tool.
+      console.log(
+        `Ollama token counts — prompt_eval_count: ${chunk.prompt_eval_count}, eval_count: ${chunk.eval_count}`
+      );
+    }
   }
 
   for (;;) {

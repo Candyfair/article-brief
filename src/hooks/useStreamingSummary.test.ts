@@ -19,7 +19,7 @@ describe('useStreamingSummary', () => {
     const { result } = renderHook(() => useStreamingSummary());
 
     await act(async () => {
-      await result.current.start('some prompt');
+      await result.current.start('some prompt', 600);
     });
 
     expect(result.current.intro).toBe('Intro sentence.');
@@ -41,7 +41,7 @@ describe('useStreamingSummary', () => {
     const { result } = renderHook(() => useStreamingSummary());
 
     act(() => {
-      void result.current.start('some prompt');
+      void result.current.start('some prompt', 600);
     });
 
     await waitFor(() => expect(result.current.isLoading).toBe(true));
@@ -59,7 +59,7 @@ describe('useStreamingSummary', () => {
     const { result } = renderHook(() => useStreamingSummary());
 
     await act(async () => {
-      await result.current.start('some prompt');
+      await result.current.start('some prompt', 600);
     });
 
     expect(result.current.error).toBe('Impossible de joindre le modèle local.');
@@ -72,7 +72,7 @@ describe('useStreamingSummary', () => {
     const { result } = renderHook(() => useStreamingSummary());
 
     await act(async () => {
-      await result.current.start('some prompt');
+      await result.current.start('some prompt', 600);
     });
     expect(result.current.error).not.toBeNull();
 
@@ -81,7 +81,7 @@ describe('useStreamingSummary', () => {
     });
 
     await act(async () => {
-      await result.current.start('another prompt');
+      await result.current.start('another prompt', 600);
     });
 
     expect(result.current.error).toBeNull();
