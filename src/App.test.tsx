@@ -98,7 +98,7 @@ describe('App core loop', () => {
     await user.click(screen.getByRole('button', { name: 'Résumer' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Detected: EN')).toBeInTheDocument();
+      expect(screen.getByText('EN détecté')).toBeInTheDocument();
     });
     const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
     expect(requestBody.prompt).toContain('Write only in English.');
@@ -119,7 +119,7 @@ describe('App core loop', () => {
     await user.click(screen.getByRole('button', { name: 'Résumer' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Detected: FR')).toBeInTheDocument();
+      expect(screen.getByText('FR détecté')).toBeInTheDocument();
     });
     const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
     expect(requestBody.prompt).toContain('Rédige uniquement en français.');
@@ -193,7 +193,7 @@ describe('App core loop', () => {
     expect(requestBody.options.num_predict).toBe(1500);
   });
 
-  it('disables the textarea and Résumer button while streaming is in progress', async () => {
+  it('swaps to the result view on submit, keeping back-to-source inert until generation completes (SPEC.md §2.7-8, §8)', async () => {
     const user = userEvent.setup();
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     let resolveBody: () => void = () => {};
@@ -224,15 +224,18 @@ describe('App core loop', () => {
     await user.type(screen.getByRole('textbox'), 'Some pasted article text');
     await user.click(screen.getByRole('button', { name: 'Résumer' }));
 
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Résumer' })).toBeDisabled();
-    });
-    expect(screen.getByRole('textbox')).toBeDisabled();
+    const backToSource = await screen.findByRole('button', { name: /Source/ });
+    expect(backToSource).toBeDisabled();
+    // The paste area is replaced by the result view during generation, not just disabled.
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
 
     resolveBody();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Résumer' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: /Source/ })).toBeEnabled();
     });
+
+    await user.click(screen.getByRole('button', { name: /Source/ }));
+    expect(screen.getByRole('textbox')).toHaveValue('Some pasted article text');
   });
 });

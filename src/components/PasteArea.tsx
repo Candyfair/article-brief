@@ -13,17 +13,22 @@ export function PasteArea({ value, onChange, onSubmit, isLoading }: PasteAreaPro
   return (
     <div>
       <textarea
+        className="paste-textarea"
         aria-label="Texte de l'article"
         placeholder="Collez l'article."
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={isLoading}
-        rows={16}
+        rows={10}
       />
-      {value.trim() !== '' && <p>{wordCount(value)} mots · modèle local</p>}
-      <button type="button" onClick={onSubmit} disabled={!canSubmit}>
-        Résumer
-      </button>
+      <div className="paste-actions">
+        <button type="button" className="button-primary" onClick={onSubmit} disabled={!canSubmit}>
+          Résumer
+        </button>
+        {value.trim() !== '' && (
+          <p className="meta-label">{wordCount(value)} mots · modèle local</p>
+        )}
+      </div>
     </div>
   );
 }

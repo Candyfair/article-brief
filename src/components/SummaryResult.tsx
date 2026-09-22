@@ -17,7 +17,11 @@ export function SummaryResult({
   error,
 }: SummaryResultProps) {
   if (error) {
-    return <p role="alert">{error}</p>;
+    return (
+      <p className="summary-error" role="alert">
+        {error}
+      </p>
+    );
   }
 
   if (!isLoading && intro === '') {
@@ -26,16 +30,7 @@ export function SummaryResult({
 
   return (
     <div>
-      <style>{`
-        @keyframes cursor-blink {
-          0%, 49% { opacity: 1; }
-          50%, 100% { opacity: 0; }
-        }
-        .cursor {
-          animation: cursor-blink 1s step-end infinite;
-        }
-      `}</style>
-      <p>
+      <p className="summary-intro">
         {intro}
         {!introComplete && (
           <span aria-hidden="true" className="cursor">
@@ -44,7 +39,7 @@ export function SummaryResult({
         )}
       </p>
       {introComplete && bullets.length > 0 && (
-        <ul>
+        <ul className="summary-bullets">
           {bullets.map((bullet, index) => (
             <li key={index}>{bullet.replace(/^—\s*/, '')}</li>
           ))}
