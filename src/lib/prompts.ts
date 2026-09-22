@@ -36,14 +36,20 @@ export function computeTargetPoints(wordCount: number): number {
 // computeTargetPoints above. An earlier version keyed num_predict off the target point
 // count; that coupling was dropped because the target wasn't a reliable basis for a
 // generation budget (it produced a too-tight cap, eval_count 1014 against a computed
-// cap of 1050 on a real ~2900-word article). This formula is derived from that same
-// data point (eval_count 1014 on ~2900 words) with headroom rather than a tight fit:
-// 0.45 tokens of output per word of article, plus a 150-token floor contribution,
-// clamped between 500 and 1600. Still an untuned starting point, not a calibrated
-// model — see SPEC.md §9.
+// cap of 1050 on a real ~2900-word article). The first word-count-based formula (0.45
+// words/token + 150) still ran too tight: a second real ~2150-word article hit a hard
+// mid-sentence truncation at eval_count 1113 against its computed cap of 1118, despite
+// comfortable headroom (cap 1455 vs. eval_count up to 1086) on the ~2900-word article it
+// was derived from — output verbosity doesn't track word count closely enough for a
+// tight fit. Revised (session 4 wrap-up) to widen the margin rather than re-fit the
+// curve from two noisy data points, safe because num_ctx (8192) leaves ample room
+// relative to prompt_eval_count values seen so far and a higher num_predict costs
+// nothing on runs that stop naturally before reaching it: 0.65 tokens of output per word
+// of article, plus a 350-token floor contribution, clamped between 500 and 2200. Still
+// not a calibrated model, based on only two real articles — see SPEC.md §9.
 export function computeNumPredict(wordCount: number): number {
-  const predict = Math.round(wordCount * 0.45) + 150;
-  return Math.min(1600, Math.max(500, predict));
+  const predict = Math.round(wordCount * 0.65) + 350;
+  return Math.min(2200, Math.max(500, predict));
 }
 
 export function buildGenerationParams(numPredict: number): OllamaGenerationParams {

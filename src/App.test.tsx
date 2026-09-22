@@ -168,7 +168,7 @@ describe('App core loop', () => {
     const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
     // computeTargetPoints(4 words) = round(4 / 300) = 0, clamped up to 3.
     expect(requestBody.prompt).toContain('about 3 points');
-    // computeNumPredict(4 words) = round(4 * 0.45) + 150 = 152, clamped up to 500.
+    // computeNumPredict(4 words) = round(4 * 0.65) + 350 = 353, clamped up to 500.
     expect(requestBody.options.num_predict).toBe(500);
   });
 
@@ -189,8 +189,8 @@ describe('App core loop', () => {
     const requestBody = JSON.parse(mockFetch.mock.calls[0][1].body as string);
     // computeTargetPoints(3000 words) = round(3000 / 300) = 10, the clamp ceiling.
     expect(requestBody.prompt).toContain('about 10 points');
-    // computeNumPredict(3000 words) = round(3000 * 0.45) + 150 = 1500.
-    expect(requestBody.options.num_predict).toBe(1500);
+    // computeNumPredict(3000 words) = round(3000 * 0.65) + 350 = 2300, clamped down to 2200.
+    expect(requestBody.options.num_predict).toBe(2200);
   });
 
   it('swaps to the result view on submit, keeping back-to-source inert until generation completes (SPEC.md §2.7-8, §8)', async () => {

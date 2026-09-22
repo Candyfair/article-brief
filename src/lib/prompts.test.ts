@@ -25,9 +25,9 @@ describe('computeTargetPoints', () => {
 });
 
 describe('computeNumPredict', () => {
-  it('scales with article word count (Math.round(wordCount * 0.45) + 150) — independent of computeTargetPoints', () => {
-    expect(computeNumPredict(2900)).toBe(1455);
-    expect(computeNumPredict(1000)).toBe(600);
+  it('scales with article word count (Math.round(wordCount * 0.65) + 350) — independent of computeTargetPoints', () => {
+    expect(computeNumPredict(1000)).toBe(1000);
+    expect(computeNumPredict(2150)).toBe(1748);
   });
 
   it('clamps to a minimum of 500 for very short articles', () => {
@@ -35,8 +35,9 @@ describe('computeNumPredict', () => {
     expect(computeNumPredict(100)).toBe(500);
   });
 
-  it('clamps to a maximum of 1600 for very long articles', () => {
-    expect(computeNumPredict(10000)).toBe(1600);
+  it('clamps to a maximum of 2200 for very long articles', () => {
+    expect(computeNumPredict(2900)).toBe(2200);
+    expect(computeNumPredict(10000)).toBe(2200);
   });
 });
 
