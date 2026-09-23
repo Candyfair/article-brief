@@ -6,7 +6,7 @@
 // language-detection.ts's result; prompt-selection logic itself lives at the call site,
 // not here.
 
-export const OLLAMA_MODEL = 'mistral:7b';
+import type { ModelProfile } from './model-profiles';
 
 export interface OllamaGenerationParams {
   temperature: number;
@@ -52,11 +52,18 @@ export function computeNumPredict(wordCount: number): number {
   return Math.min(2200, Math.max(500, predict));
 }
 
-export function buildGenerationParams(numPredict: number): OllamaGenerationParams {
+// Takes the active profile into account (SPEC.md §4): the remote profile adds an
+// additive reasoningAllowance on top of numPredict and may override num_ctx; the local
+// profile has no overrides, so this reduces to exactly the fixed constants below,
+// unchanged from before profiles existed.
+export function buildGenerationParams(
+  profile: ModelProfile,
+  numPredict: number
+): OllamaGenerationParams {
   return {
     temperature: TEMPERATURE,
-    num_ctx: NUM_CTX,
-    num_predict: numPredict,
+    num_ctx: profile.generation.numCtx ?? NUM_CTX,
+    num_predict: numPredict + (profile.generation.reasoningAllowance ?? 0),
   };
 }
 

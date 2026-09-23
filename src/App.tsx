@@ -6,6 +6,7 @@ import { PasteArea } from './components/PasteArea';
 import { SummaryResult } from './components/SummaryResult';
 import { useStreamingSummary } from './hooks/useStreamingSummary';
 import { detectLanguage, type DetectedLanguage } from './lib/language-detection';
+import { LOCAL_PROFILE, buildErrorMessage } from './lib/model-profiles';
 import {
   buildEnglishPrompt,
   buildFrenchPrompt,
@@ -50,7 +51,10 @@ function App() {
         ? buildFrenchPrompt(cleanedText, targetPoints)
         : buildEnglishPrompt(cleanedText, targetPoints);
     setShowResult(true);
-    void start(prompt, computeNumPredict(words));
+    // Hardwired to LOCAL_PROFILE for now — target selection (the local/remote switch)
+    // lands in a later commit; this keeps the app fully functional, local-only, against
+    // the new profile-aware start() signature.
+    void start(LOCAL_PROFILE, prompt, computeNumPredict(words));
   }
 
   function handleBackToSource() {
@@ -59,6 +63,9 @@ function App() {
   }
 
   const summaryText = bullets.length > 0 ? `${intro}\n\n${bullets.join('\n')}` : intro;
+  // SummaryResult still takes a plain string here — it loses this prop entirely once
+  // ErrorNotice takes over the error UI in a later commit (SPEC.md §2.11).
+  const errorMessage = error ? buildErrorMessage(error.target, error.kind) : null;
 
   const summaryResult = (
     <SummaryResult
@@ -66,7 +73,7 @@ function App() {
       introComplete={introComplete}
       bullets={bullets}
       isLoading={isLoading}
-      error={error}
+      error={errorMessage}
     />
   );
 

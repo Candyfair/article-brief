@@ -6,6 +6,23 @@ import {
   computeNumPredict,
   computeTargetPoints,
 } from './prompts';
+import type { ModelProfile } from './model-profiles';
+
+const FAKE_LOCAL_PROFILE: ModelProfile = {
+  id: 'local',
+  label: 'modèle local',
+  model: 'fake-local-model',
+  baseUrl: () => 'http://fake-local',
+  generation: {},
+};
+
+const FAKE_REMOTE_PROFILE: ModelProfile = {
+  id: 'remote',
+  label: 'modèle distant',
+  model: 'fake-remote-model',
+  baseUrl: () => 'http://fake-remote',
+  generation: { reasoningAllowance: 300, numCtx: 9000 },
+};
 
 describe('computeTargetPoints', () => {
   it('targets roughly one point per 300 words of article', () => {
@@ -42,16 +59,24 @@ describe('computeNumPredict', () => {
 });
 
 describe('buildGenerationParams', () => {
-  it('combines the fixed temperature/num_ctx constants with the computed num_predict (SPEC.md §4)', () => {
-    expect(buildGenerationParams(1455)).toEqual({
+  it('combines the fixed temperature with the profile default num_ctx and the computed num_predict, unchanged when the profile has no overrides (SPEC.md §4)', () => {
+    expect(buildGenerationParams(FAKE_LOCAL_PROFILE, 1455)).toEqual({
       temperature: 0.2,
       num_ctx: 8192,
       num_predict: 1455,
     });
   });
 
+  it('applies profile generation overrides — numCtx replaces the default, reasoningAllowance adds onto num_predict (SPEC.md §4/§9)', () => {
+    expect(buildGenerationParams(FAKE_REMOTE_PROFILE, 1455)).toEqual({
+      temperature: 0.2,
+      num_ctx: 9000,
+      num_predict: 1755,
+    });
+  });
+
   it('never includes a stop token', () => {
-    expect('stop' in buildGenerationParams(1455)).toBe(false);
+    expect('stop' in buildGenerationParams(FAKE_LOCAL_PROFILE, 1455)).toBe(false);
   });
 });
 
