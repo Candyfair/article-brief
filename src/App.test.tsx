@@ -257,6 +257,9 @@ describe('local/remote target switch (SPEC.md §2, desktop/mobile-05 mockups)', 
   });
 
   it('shows the plain "modèle local" label, no switch, when the remote env var is unset', async () => {
+    // Force-unset regardless of a real .env.local on the developer's own machine —
+    // vitest.config.ts's Vite env loading would otherwise leak it in.
+    vi.stubEnv('VITE_REMOTE_OLLAMA_HOST', undefined);
     const user = userEvent.setup();
     render(<App />);
 
