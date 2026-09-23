@@ -5,20 +5,14 @@ import { SummaryResult } from './SummaryResult';
 describe('SummaryResult', () => {
   it('renders nothing in the idle state', () => {
     const { container } = render(
-      <SummaryResult intro="" introComplete={false} bullets={[]} isLoading={false} error={null} />
+      <SummaryResult intro="" introComplete={false} bullets={[]} isLoading={false} />
     );
     expect(container).toBeEmptyDOMElement();
   });
 
   it('shows a blinking cursor after the in-progress intro text', () => {
     render(
-      <SummaryResult
-        intro="The article discusses"
-        introComplete={false}
-        bullets={[]}
-        isLoading
-        error={null}
-      />
+      <SummaryResult intro="The article discusses" introComplete={false} bullets={[]} isLoading />
     );
     expect(screen.getByText(/The article discusses/)).toBeInTheDocument();
     expect(screen.getByText('▌')).toBeInTheDocument();
@@ -31,7 +25,6 @@ describe('SummaryResult', () => {
         introComplete
         bullets={['— first point', '— second point']}
         isLoading={false}
-        error={null}
       />
     );
     expect(screen.queryByText('▌')).not.toBeInTheDocument();
@@ -41,28 +34,8 @@ describe('SummaryResult', () => {
 
   it('does not show bullets still in the intro-incomplete phase, even if some were passed', () => {
     render(
-      <SummaryResult
-        intro="Still going"
-        introComplete={false}
-        bullets={['— stray']}
-        isLoading
-        error={null}
-      />
+      <SummaryResult intro="Still going" introComplete={false} bullets={['— stray']} isLoading />
     );
     expect(screen.queryByText(/stray/)).not.toBeInTheDocument();
-  });
-
-  it('shows the inline error message instead of the summary', () => {
-    render(
-      <SummaryResult
-        intro="ignored"
-        introComplete
-        bullets={['ignored']}
-        isLoading={false}
-        error="Impossible de joindre le modèle local."
-      />
-    );
-    expect(screen.getByRole('alert')).toHaveTextContent('Impossible de joindre le modèle local.');
-    expect(screen.queryByText('ignored')).not.toBeInTheDocument();
   });
 });

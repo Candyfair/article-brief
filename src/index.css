@@ -163,6 +163,27 @@ main {
   font-size: clamp(0.85rem, 1.6vw, 0.95rem);
 }
 
+/* Inline local/remote toggle, nested inside .meta-label — inherits its color/size.
+   Minimal/unstyled per SPEC.md §2; final styling is a later session. */
+.model-switch {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+
+.model-switch:disabled {
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
 /* Buttons */
 .button-primary,
 .button-secondary {
@@ -239,9 +260,32 @@ main {
   color: var(--magenta);
 }
 
-.summary-error {
-  margin-top: 1.5rem;
+/* Error notice (SPEC.md §2.11), between the textarea and the submit button/meta row —
+   not appended after everything. */
+.error-notice {
+  margin: 1.5rem 0;
+}
+
+.error-label {
+  margin: 0 0 0.35rem;
+  font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.error-message {
+  margin: 0;
+  font-style: italic;
   color: var(--ink);
+  font-size: clamp(1.05rem, 2vw, 1.15rem);
+}
+
+.error-hint {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: clamp(0.85rem, 1.6vw, 0.95rem);
 }
 
 @media (max-width: 600px) {

@@ -3,27 +3,13 @@ interface SummaryResultProps {
   introComplete: boolean;
   bullets: string[];
   isLoading: boolean;
-  error: string | null;
 }
 
 // Renders the streaming summary progressively (SPEC.md §2.6): the intro sentence
 // composes token by token with a blinking cursor at the end of the in-progress text;
-// once the intro is complete, bullets appear one by one.
-export function SummaryResult({
-  intro,
-  introComplete,
-  bullets,
-  isLoading,
-  error,
-}: SummaryResultProps) {
-  if (error) {
-    return (
-      <p className="summary-error" role="alert">
-        {error}
-      </p>
-    );
-  }
-
+// once the intro is complete, bullets appear one by one. Error rendering lives in
+// ErrorNotice instead (SPEC.md §2.11) — this component only ever shows a summary.
+export function SummaryResult({ intro, introComplete, bullets, isLoading }: SummaryResultProps) {
   if (!isLoading && intro === '') {
     return null;
   }
