@@ -30,7 +30,7 @@ describe('streamSummary', () => {
     vi.unstubAllGlobals();
   });
 
-  it('calls Ollama /api/generate with stream: true and the given profile\'s model/base URL', async () => {
+  it("calls Ollama /api/generate with stream: true and the given profile's model/base URL", async () => {
     const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
     mockFetch.mockResolvedValue(ndjsonResponse(['A short summary.']));
 

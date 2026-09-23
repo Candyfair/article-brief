@@ -53,7 +53,11 @@ export function PasteArea({
           <p className="meta-label">
             {wordCount(value)} mots ·{' '}
             {remoteAvailable ? (
-              <ModelSwitch selected={selectedTarget} onSelect={onSelectTarget} disabled={isLoading} />
+              <ModelSwitch
+                selected={selectedTarget}
+                onSelect={onSelectTarget}
+                disabled={isLoading}
+              />
             ) : (
               'modèle local'
             )}

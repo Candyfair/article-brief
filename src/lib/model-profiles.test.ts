@@ -57,13 +57,19 @@ describe('getAvailableProfiles', () => {
 
 describe('buildErrorMessage', () => {
   it('builds the unreachable message per target', () => {
-    expect(buildErrorMessage('local', 'unreachable')).toBe('Impossible de joindre le modèle local.');
-    expect(buildErrorMessage('remote', 'unreachable')).toBe('Impossible de joindre le modèle distant.');
+    expect(buildErrorMessage('local', 'unreachable')).toBe(
+      'Impossible de joindre le modèle local.'
+    );
+    expect(buildErrorMessage('remote', 'unreachable')).toBe(
+      'Impossible de joindre le modèle distant.'
+    );
   });
 
   it('builds the empty-response message per target', () => {
     expect(buildErrorMessage('local', 'empty')).toBe("Le modèle local n'a pas produit de réponse.");
-    expect(buildErrorMessage('remote', 'empty')).toBe("Le modèle distant n'a pas produit de réponse.");
+    expect(buildErrorMessage('remote', 'empty')).toBe(
+      "Le modèle distant n'a pas produit de réponse."
+    );
   });
 });
 
@@ -72,7 +78,9 @@ describe('buildErrorHint', () => {
     expect(buildErrorHint('remote', 'unreachable', true)).toBe(
       'Vérifiez la connexion, ou basculez sur le modèle local.'
     );
-    expect(buildErrorHint('remote', 'empty', true)).toBe('Relancez, ou basculez sur le modèle local.');
+    expect(buildErrorHint('remote', 'empty', true)).toBe(
+      'Relancez, ou basculez sur le modèle local.'
+    );
   });
 
   it('offers to switch to remote when local fails and remote is available', () => {

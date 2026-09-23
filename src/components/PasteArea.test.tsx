@@ -84,7 +84,10 @@ describe('PasteArea', () => {
       <PasteArea
         {...defaultProps}
         value="Some article text"
-        error={{ message: 'Impossible de joindre le modèle local.', hint: "Vérifiez qu'Ollama tourne sur le Mac Mini." }}
+        error={{
+          message: 'Impossible de joindre le modèle local.',
+          hint: "Vérifiez qu'Ollama tourne sur le Mac Mini.",
+        }}
       />
     );
 
@@ -94,12 +97,8 @@ describe('PasteArea', () => {
     const button = screen.getByRole('button', { name: 'Résumer' });
     // DOM order: textarea, then the error notice, then the submit button/meta row
     // (SPEC.md §2.11, desktop/mobile-06/07 mockups).
-    expect(
-      textbox.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
-    expect(
-      alert.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
+    expect(textbox.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(alert.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('renders nothing extra when error is null', () => {
