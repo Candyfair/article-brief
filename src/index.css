@@ -184,6 +184,12 @@ main {
   text-decoration: none;
 }
 
+/* Smaller than the label text (desktop/mobile-05/08 mockups: the glyph reads as a
+   discreet mark, not a full-size character). */
+.model-switch__glyph {
+  font-size: 0.8em;
+}
+
 /* Buttons */
 .button-primary,
 .button-secondary {

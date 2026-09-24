@@ -25,7 +25,10 @@ export function ModelSwitch({ selected, onSelect, disabled }: ModelSwitchProps) 
       onClick={() => onSelect(selected === 'local' ? 'remote' : 'local')}
       disabled={disabled}
     >
-      modèle {bareLabel} <span aria-hidden="true">⇄</span>
+      modèle {bareLabel}{' '}
+      <span className="model-switch__glyph" aria-hidden="true">
+        ⇄
+      </span>
     </button>
   );
 }
