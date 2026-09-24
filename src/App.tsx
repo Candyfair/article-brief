@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ClearButton } from './components/ClearButton';
 import { CopyButton } from './components/CopyButton';
 import { DarkModeToggle } from './components/DarkModeToggle';
 import { LanguageIndicator } from './components/LanguageIndicator';
@@ -36,6 +37,7 @@ function App() {
   const [showResult, setShowResult] = useState(false);
   const { intro, introComplete, bullets, isLoading, error, start, clearError } =
     useStreamingSummary();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
@@ -94,6 +96,14 @@ function App() {
     setArticleText(next);
   }
 
+  // Session 7 addition (SPEC.md §2): empties the field in one click instead of a manual
+  // select-all + delete, reusing handleTextChange's error-clearing so it can't leave a
+  // stale error/result state behind, then refocuses the (now empty) text area.
+  function handleClear() {
+    handleTextChange('');
+    textareaRef.current?.focus();
+  }
+
   const summaryText = bullets.length > 0 ? `${intro}\n\n${bullets.join('\n')}` : intro;
   const submitLabel = error ? 'Réessayer' : 'Résumer';
   const pasteAreaError = error
@@ -141,7 +151,10 @@ function App() {
           </>
         ) : (
           <>
-            <h1 className="wordmark">Article Brief</h1>
+            <div className="header-title-group">
+              <h1 className="wordmark">Article Brief</h1>
+              {articleText.length > 0 && <ClearButton onClear={handleClear} />}
+            </div>
             <DarkModeToggle isDark={isDarkMode} onToggle={() => setIsDarkMode((dark) => !dark)} />
           </>
         )}
@@ -165,6 +178,7 @@ function App() {
             onSelectTarget={handleTargetChange}
             remoteAvailable={remoteAvailable}
             error={pasteAreaError}
+            textareaRef={textareaRef}
           />
         )}
       </main>

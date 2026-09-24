@@ -37,7 +37,7 @@ Full behavioral spec: see `SPEC.md`.
 
 - Variable names and code comments: English, always.
 - File/folder structure:
-  - `/src/components` — UI components (`PasteArea`, `SummaryResult`, `CopyButton`, `DarkModeToggle`, `LanguageIndicator`, `ModelSwitch`, `ErrorNotice`)
+  - `/src/components` — UI components (`PasteArea`, `SummaryResult`, `CopyButton`, `DarkModeToggle`, `LanguageIndicator`, `ModelSwitch`, `ErrorNotice`, `ClearButton`)
   - `/src/lib/ollama.ts` — Ollama API client (streaming fetch wrapper)
   - `/src/lib/model-profiles.ts` — per-target (local/remote) `ModelProfile` definitions: model name, base URL resolution, generation overrides (`reasoningAllowance`, `numCtx`), plus the SPEC.md §2 error message/hint builders — kept together since they're all keyed on the same target id
   - `/src/lib/language-detection.ts` — French/English marker-density detection function (SPEC.md §3)

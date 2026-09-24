@@ -35,6 +35,7 @@ Article Brief is a personal, single-screen web tool: paste the text of a press a
 
 12. Nothing is saved anywhere. Refreshing or closing the tab clears everything and returns to the idle state — this is expected behavior, not a bug, including if it happens mid-stream (no partial-state recovery).
 13. Pasted text may carry site boilerplate ahead of the real article — sharing instructions, legal notices, a syndication contact, paywall messaging, a bare URL on its own line. Only a standalone URL line (the entire line is nothing but a URL) is stripped client-side (`src/lib/text-cleanup.ts`), and only from the copy of the text used for language detection and the Ollama prompt — never from the text area's own state, the back-to-source content (§2.8), or the word count (§2.2). Everything else — legal notices, sharing instructions, syndication contact lines — is left for the model to recognize and ignore per the prompt instructions (§4). This is a deliberate scope boundary, not a gap to close later.
+14. **Clear-field control** (`src/components/ClearButton.tsx`, session 7 — no `/design` mockup): a small icon (Lucide "rotate-ccw") next to the "Article Brief" title, shown whenever the text area is non-empty (idle/filled states only — the title is replaced by the back-to-source header during streaming/done, §2.7, so the control doesn't apply there). Clicking it empties the pasted text, clears any standing error (§2.11), and refocuses the text area — a shortcut for the manual select-all + delete a user would otherwise need before pasting a new article. Does not change the selected target.
 
 ## 3. Language detection
 
@@ -84,7 +85,7 @@ Article Brief is a personal, single-screen web tool: paste the text of a press a
 
 - Single screen, no routing, no sidebar, no history list. "Back to source" (§2.7–8) is a local state toggle within the same screen, not a navigation change.
 - States to implement, each validated in `/design`: idle, filled/ready, streaming, done — for both desktop and mobile breakpoints (8 mockups), plus, added in session 6, filled/streaming with the remote target active and both error states, also for both breakpoints (8 more mockups, 16 total — see CLAUDE.md reference section for filenames).
-- Elements across states: paste text area, "Résumer"/"Réessayer" button (disabled when empty), word count + either a plain "modèle local" label or the local/remote switch (§2), language indicator, streaming result area (intro sentence + bullet list), back-to-source control (+ target segment when remote is active, §2.7), "Copier le résumé" button (conditionally shown, with transient "Copié ✓" state), manual light/dark toggle.
+- Elements across states: paste text area, "Résumer"/"Réessayer" button (disabled when empty), word count + either a plain "modèle local" label or the local/remote switch (§2), language indicator, streaming result area (intro sentence + bullet list), back-to-source control (+ target segment when remote is active, §2.7), "Copier le résumé" button (conditionally shown, with transient "Copié ✓" state), manual light/dark toggle, clear-field control (§2.14 — session 7 addition, has no mockup in `/design`).
 - Error state (`desktop/mobile-06/07`, §2.11): the "Échec" block sits between the text area and the button, not after everything; "Résumer" relabels to "Réessayer" and stays clickable, pasted text untouched. Styled consistently with the rest of the screen (same typography/colors), not a separately invented visual treatment.
 - Design tokens (from the validated mockups — useful as exact reference values; `/design` remains authoritative for layout, spacing, and copy):
   - Colors: paper background `#f3f2f2`, ink `#201e1d`, accent terracotta `#c1440e` (light mode) / `#ff9d52` (dark mode) — replaces a default system cyan — magenta `#d6006c` for the bullet-point dashes.
@@ -116,6 +117,7 @@ Article Brief is a personal, single-screen web tool: paste the text of a press a
   - Local/remote switch is disabled during generation and always defaults to local on page load.
   - Header shows the active target ("· modèle distant") during remote streaming and once done; no target segment when local is active.
   - No env var configured — plain "modèle local" label, no switch, identical to pre-session-6 behavior.
+- **Session 7 (clear-field control, §2.14):** clicking the icon next to the title empties the text area, clears a standing error and resets the button label back to "Résumer", refocuses the text area, and leaves the selected target untouched; it is hidden whenever the text area is empty.
 
 ## 9. Open items / assumptions to validate
 

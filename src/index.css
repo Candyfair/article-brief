@@ -87,6 +87,12 @@ textarea {
   margin-left: auto;
 }
 
+.header-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
 .wordmark {
   margin: 0;
   font-size: clamp(1rem, 2vw, 1.1rem);
@@ -121,6 +127,28 @@ button.header-control:disabled {
 
 .dark-mode-toggle,
 .language-indicator {
+  color: var(--accent);
+}
+
+/* Discreet clear-field control (SPEC.md §2, session 7 — no mockup). The visible icon
+   stays small; padding plus a matching negative margin grows the hit area (32px
+   desktop, 44px mobile below) without shifting the title's position in the header. */
+.clear-button {
+  appearance: none;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  margin: -0.6rem;
+  color: var(--muted);
+  line-height: 0;
+  cursor: pointer;
+}
+
+.clear-button:hover,
+.clear-button:focus-visible {
   color: var(--accent);
 }
 
@@ -313,5 +341,12 @@ main {
      is part of the same span, so hiding it never leaves an orphaned separator dot. */
   .header-wordcount {
     display: none;
+  }
+
+  /* Larger touch target on mobile (44px vs. 32px on desktop) for the clear-field
+     control, same negative-margin technique as the desktop rule above. */
+  .clear-button {
+    padding: 1rem;
+    margin: -1rem;
   }
 }

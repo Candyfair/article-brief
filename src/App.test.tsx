@@ -464,3 +464,62 @@ describe('header target segment (SPEC.md §2, desktop/mobile-08 mockups)', () =>
     expect(backToSource).not.toHaveTextContent('modèle distant');
   });
 });
+
+describe('clear-field control (SPEC.md §2, session 7 addition — no /design mockup)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('is hidden in the idle state and appears once the field has text', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.queryByRole('button', { name: 'Effacer le texte' })).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole('textbox'), 'Some pasted article text');
+
+    expect(screen.getByRole('button', { name: 'Effacer le texte' })).toBeInTheDocument();
+  });
+
+  it('after a completed summary, clicking clear from the source view empties the field, refocuses it, and leaves "Résumer" disabled', async () => {
+    const user = userEvent.setup();
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockResolvedValue(ndjsonResponse(['Intro sentence.']));
+
+    render(<App />);
+    await user.type(screen.getByRole('textbox'), 'Some pasted article text');
+    await user.click(screen.getByRole('button', { name: 'Résumer' }));
+
+    const backToSource = await screen.findByRole('button', { name: /Source/ });
+    await waitFor(() => expect(backToSource).toBeEnabled());
+    await user.click(backToSource);
+
+    await user.click(screen.getByRole('button', { name: 'Effacer le texte' }));
+
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toHaveValue('');
+    expect(textarea).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Résumer' })).toBeDisabled();
+  });
+
+  it('clicking clear also dismisses a standing error and resets the button label (SPEC.md §2.11)', async () => {
+    const user = userEvent.setup();
+    const mockFetch = fetch as unknown as ReturnType<typeof vi.fn>;
+    mockFetch.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    render(<App />);
+    await user.type(screen.getByRole('textbox'), 'Some pasted article text');
+    await user.click(screen.getByRole('button', { name: 'Résumer' }));
+    await screen.findByRole('button', { name: 'Réessayer' });
+
+    await user.click(screen.getByRole('button', { name: 'Effacer le texte' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Résumer' })).toBeDisabled();
+    expect(screen.getByRole('textbox')).toHaveValue('');
+  });
+});

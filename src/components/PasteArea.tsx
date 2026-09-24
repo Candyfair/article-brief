@@ -18,6 +18,7 @@ interface PasteAreaProps {
   onSelectTarget: (target: TargetId) => void;
   remoteAvailable: boolean;
   error: PasteAreaError | null;
+  textareaRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
 export function PasteArea({
@@ -30,12 +31,14 @@ export function PasteArea({
   onSelectTarget,
   remoteAvailable,
   error,
+  textareaRef,
 }: PasteAreaProps) {
   const canSubmit = value.trim() !== '' && !isLoading;
 
   return (
     <div>
       <textarea
+        ref={textareaRef}
         className="paste-textarea"
         aria-label="Texte de l'article"
         placeholder="Collez l'article."
