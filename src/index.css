@@ -81,6 +81,10 @@ textarea {
   display: flex;
   align-items: baseline;
   gap: 1.25rem;
+  /* When .app-header wraps (narrow viewports, remote target: the left group's text is
+     long enough to force a second line), space-between can't right-align a lone
+     wrapped item — margin-left: auto does, on whichever line this group ends up on. */
+  margin-left: auto;
 }
 
 .wordmark {
