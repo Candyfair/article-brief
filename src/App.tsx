@@ -127,8 +127,12 @@ function App() {
               onClick={handleBackToSource}
               disabled={!isDone}
             >
-              ↩ Source · {wordCount(articleText)} mots
-              {selectedTarget === 'remote' ? ' · modèle distant' : ''}
+              <span>↩ Source</span>
+              {/* Hidden below the 600px breakpoint (SPEC.md §6) — mobile-03/04/08 mockups
+                  omit the word count; its own leading separator goes with it so no dot
+                  is left orphaned. */}
+              <span className="header-wordcount"> · {wordCount(articleText)} mots</span>
+              {selectedTarget === 'remote' && <span> · modèle distant</span>}
             </button>
             <div className="header-controls-right">
               {detectedLanguage && <LanguageIndicator language={detectedLanguage} />}

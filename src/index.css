@@ -298,4 +298,10 @@ main {
   .meta-label {
     text-align: center;
   }
+
+  /* Mobile streaming/done header omits the word count (SPEC.md §6); its leading " · "
+     is part of the same span, so hiding it never leaves an orphaned separator dot. */
+  .header-wordcount {
+    display: none;
+  }
 }
