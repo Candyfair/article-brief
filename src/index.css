@@ -89,7 +89,12 @@ textarea {
 
 .header-title-group {
   display: flex;
-  align-items: baseline;
+  /* Baseline alignment left the clear icon ~1.5-2px above the title's cap-height
+     center: a flex item with no in-flow text (the icon button) has no real baseline
+     to align on, so the browser falls back to its bottom margin edge. Centering the
+     group's cross-axis instead lines up the icon's ink with the title's cap height
+     exactly, at both breakpoints (measured, not guessed). */
+  align-items: center;
   gap: 0.5rem;
 }
 
